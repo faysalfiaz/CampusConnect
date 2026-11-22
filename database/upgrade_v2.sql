@@ -1,0 +1,9 @@
+-- v2 upgrade for an existing database: event feedback & ratings
+USE campusconnect;
+CREATE TABLE IF NOT EXISTS event_feedback (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, event_id INT UNSIGNED NOT NULL, user_id INT UNSIGNED NOT NULL,
+  rating TINYINT UNSIGNED NOT NULL, comment VARCHAR(500) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_fb (event_id, user_id),
+  FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;

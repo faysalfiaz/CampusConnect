@@ -1,0 +1,2 @@
+<form id="editCommentForm" method="post" action="<?= url('api/comments.php') ?>" class="d-none"><?= csrf_field() ?><input type="hidden" name="action" value="edit"><input type="hidden" name="comment_id"><input type="hidden" name="body"></form>
+<form id="reportCommentForm" method="post" action="<?= url('api/comments.php') ?>" class="d-none"><?= csrf_field() ?><input type="hidden" name="action" value="report"><input type="hidden" name="comment_id"><input type="hidden" name="reason"></form>
