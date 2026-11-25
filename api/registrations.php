@@ -9,8 +9,10 @@ $stu = current_student();
 if ($a === 'register') {
     $end = strtotime($ev['event_date'] . ' ' . $ev['end_time']);
     $existing = row('SELECT * FROM event_registrations WHERE event_id=? AND user_id=?', [$eid, $uid]);
+    $eligibleDept = trim((string) ($ev['eligible_dept'] ?? ''));
+    $stuDept = trim((string) ($stu['department'] ?? ''));
     if (time() > strtotime($ev['registration_deadline']) || time() > $end) flash('error', 'Registration is closed for this event.');
-    elseif ($ev['eligible_dept'] && strcasecmp($ev['eligible_dept'], $stu['department']) !== 0) flash('error', 'This event is only for ' . $ev['eligible_dept'] . ' students.');
+    elseif ($eligibleDept !== '' && !in_array(strtolower($eligibleDept), ['all', 'any'], true) && strcasecmp($eligibleDept, $stuDept) !== 0) flash('error', 'This event is only for ' . $ev['eligible_dept'] . ' students.');
     elseif ($existing && $existing['status'] !== 'cancelled') flash('error', 'You are already registered.');
     else {
         // Lock the event row so two simultaneous registrations cannot both take the last seat.
