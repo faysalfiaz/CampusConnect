@@ -7,6 +7,7 @@ if ($id) {
     $reg = row('SELECT * FROM event_registrations WHERE event_id=? AND user_id=?', [$id, $uid]);
     $phase = event_phase($e);
     $canReg = $phase === 'Registration Open' && (!$reg || $reg['status'] === 'cancelled');
+    $count = (int) val("SELECT COUNT(*) FROM event_registrations WHERE event_id=? AND status IN ('registered','waitlist')", [$id]);
     $title = $e['title'];
     require __DIR__ . '/../includes/header.php'; ?>
     <?php if ($e['status'] === 'cancelled'): ?><div class="alert alert-danger d-flex gap-2 align-items-start"><i class="bi bi-x-octagon-fill fs-4"></i><div><strong>This event has been cancelled.</strong><?= $e['rejection_reason'] ? '<br>Reason: ' . e($e['rejection_reason']) : '' ?></div></div><?php endif; ?>
