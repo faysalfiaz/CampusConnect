@@ -17,7 +17,8 @@ if (is_post()) {
     if (!val('SELECT id FROM club_members WHERE id=? AND club_id=? AND can_post=1', [$by, $cid])) $err[] = 'Choose an authorised executive as the author (set posting permission on the Executives page).';
     try { $img = upload_file('image', 'posts'); $att = upload_file('attachment', 'posts', false); } catch (RuntimeException $ex) { $err[] = $ex->getMessage(); }
     if (!$err) {
-        $image = $img ?? ($post['image'] ?? null); $attach = $att ?? ($post['attachment'] ?? null);
+        $image = !empty($img) ? $img : ($post['image'] ?? null);
+        $attach = !empty($att) ? $att : ($post['attachment'] ?? null);
         if (!$post) {
             $status = $mode === 'submit' ? 'pending' : 'draft';
             q('INSERT INTO posts (club_id, created_by_member_id, title, description, category, image, attachment, event_date, event_time, event_venue, extra_info, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
@@ -32,14 +33,28 @@ if (is_post()) {
                 || (string) $post['event_date'] !== (string) $f['event_date'] || $nt($post['event_time']) !== $nt($f['event_time'])
                 || (string) $post['event_venue'] !== $f['event_venue'] || (string) $post['extra_info'] !== $f['extra_info']
                 || $image !== $post['image'] || $attach !== $post['attachment'];
-            $status = $post['status']; $action = null;
-            if (in_array($status, ['draft', 'rejected'], true)) { if ($mode === 'submit') { $status = 'pending'; $action = $post['status'] === 'rejected' ? 'resubmitted' : 'submitted'; } }
-            elseif (in_array($status, ['published', 'approved'], true) && $changed) { $status = 'pending'; $action = 'resubmitted'; }   // material edit => back to approval
-            q('UPDATE posts SET created_by_member_id=?, title=?, description=?, category=?, image=?, attachment=?, event_date=?, event_time=?, event_venue=?, extra_info=?, status=?, version=version+?, rejection_reason=IF(?='pending',NULL,rejection_reason) WHERE id=? AND club_id=?',
+            $wasLive = in_array($post['status'], ['published', 'approved'], true);
+            $status = $post['status'];
+            $action = null;
+            if (in_array($status, ['draft', 'rejected'], true)) {
+                if ($mode === 'submit') {
+                    $status = 'pending';
+                    $action = $post['status'] === 'rejected' ? 'resubmitted' : 'submitted';
+                }
+            } elseif ($wasLive && $changed) {
+                $status = 'approved';
+                $action = 'updated';
+            }
+            q('UPDATE posts SET created_by_member_id=?, title=?, description=?, category=?, image=?, attachment=?, event_date=?, event_time=?, event_venue=?, extra_info=?, status=?, version=version+?, rejection_reason=IF(?= "pending", NULL, rejection_reason) WHERE id=? AND club_id=?',
                 [$by, $f['title'], $f['description'], $f['category'], $image, $attach, $f['event_date'], $f['event_time'], $f['event_venue'], $f['extra_info'], $status, $changed ? 1 : 0, $status, $id, $cid]);
-            if ($action) { q('INSERT INTO post_approvals (post_id, action, actor_user_id) VALUES (?,?,?)', [$id, $action, $uid]); notify_admins('Post ' . $action, $c['name'] . ': ' . $f['title'], 'admin/post-review.php?id=' . $id); }
+            if ($action === 'updated') {
+                notify_admins('Post updated', $c['name'] . ' updated a live post: ' . $f['title'], 'admin/post-review.php?id=' . $id);
+            } elseif ($action) {
+                q('INSERT INTO post_approvals (post_id, action, actor_user_id) VALUES (?,?,?)', [$id, $action, $uid]);
+                notify_admins('Post ' . $action, $c['name'] . ': ' . $f['title'], 'admin/post-review.php?id=' . $id);
+            }
             log_activity('post_updated', $f['title']);
-            flash('success', $action ? 'Sent for admin approval. It will not be public until approved.' : 'Saved.');
+            flash('success', $wasLive && $changed ? 'Post updated! Changes are now live for students and admins have been notified.' : ($action ? 'Sent for admin approval.' : 'Saved.'));
         }
         redirect('club/posts.php');
     }
@@ -48,7 +63,7 @@ $v = fn($k) => e($_POST[$k] ?? ($post[$k] ?? ''));
 $portal = 'club'; $title = $post ? 'Edit Post' : 'Create Post';
 require __DIR__ . '/../includes/header.php';
 if ($post && $post['status'] === 'rejected' && $post['rejection_reason']): ?><div class="alert alert-danger"><strong>Rejected by admin:</strong> <?= e($post['rejection_reason']) ?></div><?php endif;
-if ($post && in_array($post['status'], ['published', 'approved'], true)): ?><div class="alert alert-warning">This post is live. If you change its content it will go back to <strong>Pending</strong> and leave the public feed until the admin approves it again.</div><?php endif;
+if ($post && in_array($post['status'], ['published', 'approved'], true)): ?><div class="alert alert-info">This post is live. Any changes you save will remain visible to students immediately and notify the admin.</div><?php endif;
 foreach ($err as $x) echo '<div class="alert alert-danger py-2">' . e($x) . '</div>';
 if (!$posters) echo '<div class="alert alert-warning">No executive has posting permission yet. Add one on the <a href="' . url('club/executives.php') . '">Executives</a> page.</div>'; ?>
 <div class="card shadow-sm"><div class="card-body"><form method="post" enctype="multipart/form-data" class="row g-3" id="postForm"><?= csrf_field() ?>

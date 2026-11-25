@@ -19,9 +19,9 @@ if (is_post()) {
 }
 if (get('export') === 'csv') {
     header('Content-Type: text/csv'); header('Content-Disposition: attachment; filename="attendance-' . $id . '.csv"');
-    $o = fopen('php://output', 'w'); fputcsv($o, ['Student ID', 'Name', 'Department', 'Registration', 'Attendance', 'Scanned at']);
+    $o = fopen('php://output', 'w'); fputcsv($o, ['Student ID', 'Name', 'Department', 'Registration', 'Attendance', 'Scanned at'], ',', '"', '');
     foreach (rows("SELECT s.student_code, s.full_name, s.department, r.status, a.scanned_at FROM event_registrations r JOIN students s ON s.user_id=r.user_id LEFT JOIN event_tickets t ON t.registration_id=r.id LEFT JOIN attendance a ON a.ticket_id=t.id WHERE r.event_id=? AND r.status<>'cancelled' ORDER BY s.full_name", [$id]) as $r)
-        fputcsv($o, [$r['student_code'], $r['full_name'], $r['department'], $r['status'], $r['scanned_at'] ? 'Present' : 'Absent', $r['scanned_at']]);
+        fputcsv($o, [$r['student_code'], $r['full_name'], $r['department'], $r['status'], $r['scanned_at'] ? 'Present' : 'Absent', $r['scanned_at']], ',', '"', '');
     exit;
 }
 $list = rows("SELECT s.student_code, s.full_name, s.department, r.status, t.ticket_code, a.scanned_at, (SELECT cert_code FROM certificates ce WHERE ce.event_id=r.event_id AND ce.user_id=r.user_id) cert FROM event_registrations r JOIN students s ON s.user_id=r.user_id LEFT JOIN event_tickets t ON t.registration_id=r.id LEFT JOIN attendance a ON a.ticket_id=t.id WHERE r.event_id=? AND r.status<>'cancelled' ORDER BY r.status, s.full_name", [$id]);
