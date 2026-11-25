@@ -27,7 +27,7 @@ require __DIR__ . '/../includes/header.php';
   <div class="card"><div class="card-header d-flex justify-content-between"><span>Upcoming events</span><a class="small" href="<?= url('student/calendar.php') ?>">Calendar</a></div><div class="list-group list-group-flush">
     <?php foreach ($upc as $u): ?><a class="list-group-item list-group-item-action d-flex gap-3 align-items-center" href="<?= url('student/events.php?id=' . (int) $u['id']) ?>"><span class="mini-date"><b><?= e(dt($u['event_date'], 'd')) ?></b><?= e(dt($u['event_date'], 'M')) ?></span><span><?= e($u['title']) ?><br><small class="text-muted"><?= e(dt($u['event_date'] . ' ' . $u['start_time'], 'h:i A')) ?></small></span></a><?php endforeach; ?>
     <?php if (!$upc): ?><div class="list-group-item text-muted small">No upcoming events yet.</div><?php endif; ?></div></div>
-  <div class="card"><div class="card-header">Active clubs</div><div class="list-group list-group-flush">
+  <div class="card"><div class="card-header">Clubs & Administration</div><div class="list-group list-group-flush">
     <?php foreach ($topClubs as $tc): ?><a class="list-group-item list-group-item-action d-flex gap-3 align-items-center" href="<?= url('student/clubs.php?id=' . (int) $tc['id']) ?>"><?php if ($tc['logo']): ?><img class="club-logo" style="width:36px;height:36px" src="<?= url($tc['logo']) ?>" alt=""><?php else: ?><span class="club-logo" style="width:36px;height:36px"><?= e(mb_substr($tc['name'], 0, 1)) ?></span><?php endif; ?><span><?= e($tc['name']) ?><br><small class="text-muted"><?= (int) $tc['n'] ?> posts</small></span></a><?php endforeach; ?></div></div>
 </div></div></div>
 <?php include __DIR__ . '/../includes/comment_forms.php'; require __DIR__ . '/../includes/footer.php';
