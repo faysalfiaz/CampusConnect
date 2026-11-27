@@ -1,7 +1,7 @@
 <?php
 // Shared frame for sign-in and create-account: info panel on the left, form card on the right.
 function auth_open(string $role, string $mode, string $heading, string $sub, string $cls = ''): void {
-    $names = ['student' => 'Student', 'club' => 'Club', 'admin' => 'Admin'];
+    $names = ['student' => 'Student', 'club' => 'Club', 'department' => 'Department', 'admin' => 'Admin'];
     $info = [
         'student' => ['h' => 'Everything campus, in one place.', 'p' => 'Join events, keep your tickets and collect your certificates without chasing anyone.',
             'f' => [['calendar-event', 'Events', 'Find and join what is happening'], ['qr-code', 'QR tickets', 'Your entry pass, always with you'], ['award', 'Certificates', 'Earned and kept automatically'], ['people', 'Clubs', 'Follow clubs and campus news']],
@@ -12,6 +12,9 @@ function auth_open(string $role, string $mode, string $heading, string $sub, str
         'admin' => ['h' => 'Keep the campus running smoothly.', 'p' => 'Review what is waiting, moderate content and watch the numbers.',
             'f' => [['check2-square', 'Approvals', 'Posts and events in one queue'], ['flag', 'Moderation', 'Handle reported comments'], ['graph-up', 'Analytics', 'See activity at a glance'], ['building', 'Clubs', 'Create, edit and manage clubs']],
             's' => ['Create admin account', 'Review requests', 'Track the numbers']],
+        'department' => ['h' => 'Run your department activities in one place.', 'p' => 'Post notices and events for students, track attendance and issue certificates, all with admin approval.',
+            'f' => [['megaphone', 'Notices', 'Share updates with students'], ['calendar-plus', 'Events', 'Seminars, workshops and contests'], ['qr-code-scan', 'Attendance', 'Scan QR tickets at the door'], ['award', 'Certificates', 'Issue to everyone who attended']],
+            's' => ['Register your department', 'Post an event', 'Scan and certify']],   
     ][$role];
     ?>
 <div class="auth-stage"><div class="aurora"><i></i><i></i><i></i></div>
@@ -32,7 +35,7 @@ function auth_open(string $role, string $mode, string $heading, string $sub, str
 <?php }
 function auth_close(string $role, string $mode): void { ?>
     <div class="auth-switch">Other portals:
-      <?php foreach (['student' => 'Student', 'club' => 'Club', 'admin' => 'Admin'] as $r => $n): if ($r !== $role): ?><a href="<?= url('auth/' . $r . '-' . $mode . '.php') ?>"><?= $n ?></a><?php endif; endforeach; ?>
+      <?php foreach (['student' => 'Student', 'club' => 'Club', 'department' => 'Department', 'admin' => 'Admin'] as $r => $n): if ($r !== $role): ?><a href="<?= url('auth/' . $r . '-' . $mode . '.php') ?>"><?= $n ?></a><?php endif; endforeach; ?>
       <a href="<?= url('index.php') ?>">Home</a></div>
   </div>
 </div></div>
