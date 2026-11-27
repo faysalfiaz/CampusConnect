@@ -32,7 +32,8 @@ $cur = ltrim(str_replace(BASE_URL, '', parse_url($_SERVER['REQUEST_URI'], PHP_UR
     <?php if ($u): ?>
       <a class="btn btn-sm btn-outline-secondary position-relative" href="<?= url('notifications.php') ?>"><i class="bi bi-bell"></i>
         <?php if ($unread): ?><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"><?= $unread ?></span><?php endif; ?></a>
-      <span class="avatar d-none d-sm-grid" title="<?= e($u['email'] ?? '') ?>"><?= e(strtoupper(mb_substr($u['email'] ?? '?', 0, 1))) ?></span>
+         <a class="btn btn-sm btn-outline-secondary" href="<?= url('change-password.php') ?>" title="Change password"><i class="bi bi-key"></i></a>
+         <span class="avatar d-none d-sm-grid" title="<?= e($u['email'] ?? '') ?>"><?= e(strtoupper(mb_substr($u['email'] ?? '?', 0, 1))) ?></span>
       <form method="post" action="<?= url('auth/logout.php') ?>" class="m-0"><?= csrf_field() ?><button class="btn btn-sm btn-outline-danger"><i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Logout</span></button></form>
     <?php else: ?>
       <a class="btn btn-sm btn-outline-secondary" href="<?= url('auth/student-login.php') ?>">Student</a>
