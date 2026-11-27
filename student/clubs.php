@@ -20,9 +20,11 @@ if ($id) {
     <?php include __DIR__ . '/../includes/comment_forms.php'; require __DIR__ . '/../includes/footer.php'; exit;
 }
 $qs = get('q');
-$clubs = rows("SELECT c.*, (SELECT COUNT(*) FROM posts p WHERE p.club_id=c.id AND p.status='published') post_count FROM clubs c WHERE c.status='active' AND (c.name LIKE ? OR c.category LIKE ?) ORDER BY c.name", ["%$qs%", "%$qs%"]);
-$title = 'University Clubs';
+$type = in_array(get('type'), ['club', 'department'], true) ? get('type') : '';
+$clubs = rows("SELECT c.*, (SELECT COUNT(*) FROM posts p WHERE p.club_id=c.id AND p.status='published') post_count FROM clubs c WHERE c.status='active' AND (c.name LIKE ? OR c.category LIKE ?) AND (?='' OR c.org_type=?) ORDER BY c.name", ["%$qs%", "%$qs%", $type, $type]);
+$title = 'Clubs & Departments';
 require __DIR__ . '/../includes/header.php'; ?>
+<ul class="nav nav-pills mb-3"><?php foreach (['' => 'All', 'club' => 'Clubs', 'department' => 'Departments'] as $k => $lbl): ?><li class="nav-item"><a class="nav-link <?= $type === $k ? 'active' : '' ?>" href="?type=<?= $k ?>"><?= $lbl ?></a></li><?php endforeach; ?></ul>
 <form class="mb-3 d-flex gap-2"><input name="q" class="form-control" placeholder="Search clubs…" value="<?= e($qs) ?>"><button class="btn btn-accent">Search</button></form>
 <div class="row g-3">
 <?php foreach ($clubs as $c): ?>
