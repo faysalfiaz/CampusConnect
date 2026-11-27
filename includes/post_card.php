@@ -7,7 +7,7 @@ $comments = rows("SELECT c.*, s.full_name FROM post_comments c JOIN students s O
   <div class="card-body pb-2">
     <div class="d-flex align-items-center gap-2 mb-2">
       <?php if ($p['club_logo']): ?><img class="club-logo" src="<?= url($p['club_logo']) ?>" alt=""><?php else: ?><span class="club-logo"><?= e(mb_substr($p['club_name'], 0, 1)) ?></span><?php endif; ?>
-      <div><a class="fw-semibold text-decoration-none" href="<?= url('student/clubs.php?id=' . (int) $p['club_id']) ?>"><?= e($p['club_name']) ?></a>
+      <div><a class="fw-semibold text-decoration-none" href="<?= url('student/clubs.php?id=' . (int) $p['club_id']) ?>"><?= e($p['club_name']) ?></a><?php if (($p['club_type'] ?? 'club') === 'department'): ?> <span class="badge bg-info">Department</span><?php endif; ?>
         <div class="small text-muted"><?= dt($p['published_at']) ?><?= $p['category'] ? ' · ' . e($p['category']) : '' ?></div></div>
     </div>
     <h5><?= e($p['title']) ?></h5>

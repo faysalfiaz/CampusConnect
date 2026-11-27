@@ -10,7 +10,7 @@ $menus = [
 $unread = $u ? (int) val('SELECT COUNT(*) FROM notifications WHERE user_id=? AND is_read=0', [$u['id']]) : 0;
 $cur = ltrim(str_replace(BASE_URL, '', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)), '/');
 ?><!DOCTYPE html>
-<html lang="en" data-bs-theme="light" data-portal="<?= e($theme) ?>">
+<html lang="en" data-bs-theme="light" data-portal="<?= e(($portal === 'club' && (current_club()['org_type'] ?? 'club') === 'department') ? 'department' : $theme) ?>">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= e($title ?? APP_NAME) ?> · <?= APP_NAME ?></title>
@@ -38,18 +38,19 @@ $cur = ltrim(str_replace(BASE_URL, '', parse_url($_SERVER['REQUEST_URI'], PHP_UR
       <a class="btn btn-sm btn-outline-secondary" href="<?= url('auth/student-login.php') ?>">Student</a>
       <a class="btn btn-sm btn-outline-secondary" href="<?= url('auth/club-login.php') ?>">Club</a>
       <a class="btn btn-sm btn-outline-secondary" href="<?= url('auth/admin-login.php') ?>">Admin</a>
+      <a class="btn btn-sm btn-outline-secondary" href="<?= url('auth/department-login.php') ?>">Department</a>
     <?php endif; ?>
   </div>
 </nav>
 <?php if (isset($menus[$portal])): ?>
 <div class="d-flex">
   <aside class="offcanvas-lg offcanvas-start sidebar" tabindex="-1" id="sidebar">
-    <div class="offcanvas-header d-lg-none"><h6 class="offcanvas-title"><?= ucfirst($portal) ?> Portal</h6><button class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar"></button></div>
+    <div class="offcanvas-header d-lg-none"><h6 class="offcanvas-title"><?= ($portal === 'club' && (current_club()['org_type'] ?? 'club') === 'department') ? 'Department' : ucfirst($portal) ?> Portal</h6><button class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebar"></button></div>
     <div class="offcanvas-body flex-column p-0">
-      <div class="px-3 py-3 small fw-semibold portal-label"><?= ucfirst($portal) ?> portal</div>
+      <div class="px-3 py-3 small fw-semibold portal-label"><?= ($portal === 'club' && (current_club()['org_type'] ?? 'club') === 'department') ? 'Department' : ucfirst($portal) ?> portal</div>
       <ul class="nav flex-column">
         <?php foreach ($menus[$portal] as [$href, $icon, $label]): ?>
-          <li class="nav-item"><a class="nav-link <?= $cur === $href ? 'active' : '' ?>" href="<?= url($href) ?>"><i class="bi bi-<?= $icon ?> me-2"></i><?= e($label) ?></a></li>
+          <li class="nav-item"><a class="nav-link <?= $cur === $href ? 'active' : '' ?>" href="<?= url($href) ?>"><i class="bi bi-<?= $icon ?> me-2"></i><?= e(($label === 'Club Profile' && $portal === 'club' && (current_club()['org_type'] ?? 'club') === 'department') ? 'Department Profile' : $label) ?></a></li>
         <?php endforeach; ?>
       </ul>
       <?php $tip = ['student' => ['Never miss an event', 'Open the calendar to see what is coming up.', 'student/calendar.php', 'Open calendar'], 'club' => ['Ready to share news?', 'Create a post and send it for review.', 'club/create-post.php', 'New post'], 'admin' => ['Pending work', 'Review posts and events waiting for approval.', 'admin/posts.php', 'Open reviews']][$portal] ?? null; ?>
